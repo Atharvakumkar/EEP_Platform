@@ -23,10 +23,10 @@
 | Host and WSL2 tool audit completed (Docker, kind, kubectl, helm, python3) | CLI version and status checks | `VERIFIED` |
 | Declarative Kind configuration authored with port 8080/8443 mappings | File review of `k8s/kind-config.yaml` | `VERIFIED` |
 | Kind cluster provisioned and node status reports `Ready` | `kubectl get nodes -o wide` | `VERIFIED` |
-| Ingress NGINX controller deployed and controller pods reach `Ready` | `kubectl get pods -n ingress-nginx` | `NOT STARTED` |
-| Host port 80 routing to Kind cluster ingress verified | HTTP probe (`curl -I http://localhost`) | `NOT STARTED` |
-| Repeatable setup and teardown helper scripts created | Script execution test | `NOT STARTED` |
-| Phase 1 tasks documented with commands and outputs | Phase 1 log review | `IN PROGRESS` |
+| Ingress NGINX controller deployed and controller pods reach `Ready` | `kubectl get pods -n ingress-nginx` | `VERIFIED` |
+| Host port 8080 routing to Kind cluster ingress verified | HTTP probe (`curl -I http://localhost:8080`) | `VERIFIED` |
+| Repeatable setup and teardown helper scripts created | Script execution test | `VERIFIED` |
+| Phase 1 tasks documented with commands and outputs | Phase 1 log review | `VERIFIED` |
 
 ---
 
@@ -162,5 +162,85 @@
 - **Errors Encountered**: None.
 - **Current Status**: `VERIFIED`
 - **Next Task**: `TASK-1.4` (Deploy Ingress NGINX and Verify Routing).
+
+---
+
+### Task 1.4: Deploy Ingress NGINX and Verify Ingress Routing
+- **Task ID**: `TASK-1.4`
+- **Objective**: Deploy the official Ingress NGINX controller for Kind and verify that HTTP traffic on Windows host port 8080 routes into the cluster's ingress controller.
+- **Why Necessary**: Acts as the reverse proxy that will route preview environment URLs (`http://localhost:8080` or `http://pr-*.local:8080`) to isolated pull-request application services.
+- **Prerequisites**: Task 1.3 complete. Cluster `eep-cluster` active with port 8080 forwarded to container port 80.
+- **Planned Actions**:
+  1. Apply Ingress NGINX manifest: `https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml`.
+  2. Wait for `ingress-nginx-controller` pod to reach `Ready` status.
+  3. Probe `http://localhost:8080` from WSL2 Ubuntu and Windows PowerShell.
+  4. Verify NGINX default backend 404 response.
+- **Actual Actions**:
+  - Applied manifest via `kubectl apply -f ...`. All namespaces, CRDs, deployments, roles, and admission webhooks created cleanly.
+  - Executed `kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=180s`.
+  - Condition met: `ingress-nginx-controller-76f9746865-2dbdh` reached `1/1 Running`.
+  - Executed `curl -I http://localhost:8080` in WSL2: received `HTTP/1.1 404 Not Found`.
+  - Executed `curl.exe -s http://localhost:8080` in PowerShell: received NGINX 404 HTML body (`<center>nginx</center>`).
+- **Commands Executed**:
+  ```bash
+  # [WSL2 / Linux] Deploy Ingress NGINX
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+  # [WSL2 / Linux] Wait for controller readiness
+  kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=180s
+
+  # [WSL2 / Linux] Verify ingress controller pod
+  kubectl get pods -n ingress-nginx -o wide
+
+  # [WSL2 / Linux] Probe HTTP routing
+  curl -I http://localhost:8080
+
+  # [PowerShell] Probe HTTP routing from Windows host
+  curl.exe -I http://localhost:8080
+  curl.exe -s http://localhost:8080
+  ```
+- **Files Created/Modified**:
+  - `docs/development-logs/PHASE-1-LOG.md`
+- **Validation Results**:
+  - Ingress NGINX controller pod is `1/1 Running` and `Ready` on node `eep-cluster-control-plane`.
+  - HTTP requests hitting Windows host port `8080` routed into Kind and returned NGINX 404 default backend.
+- **Errors Encountered**: None.
+- **Current Status**: `VERIFIED`
+- **Next Task**: `TASK-1.5` (Cluster Automation Helper Scripts).
+
+---
+
+### Task 1.5: Repeatable Cluster Automation Helper Scripts
+- **Task ID**: `TASK-1.5`
+- **Objective**: Author automated helper shell scripts (`scripts/setup-kind.sh` and `scripts/teardown-kind.sh`) for idempotent cluster lifecycle operations.
+- **Why Necessary**: Enables the developer or any contributor to reliably spin up or destroy the local Kubernetes foundation with a single command.
+- **Prerequisites**: Tasks 1.1–1.4 complete and verified.
+- **Planned Actions**:
+  1. Author `scripts/setup-kind.sh`: checks prerequisites, creates cluster if absent, applies Ingress NGINX, and waits for readiness.
+  2. Author `scripts/teardown-kind.sh`: checks if cluster exists and deletes it cleanly via Kind.
+  3. Make scripts executable (`chmod +x`).
+  4. Test idempotency by running `setup-kind.sh` against the running cluster.
+- **Actual Actions**:
+  - Created `scripts/setup-kind.sh` and `scripts/teardown-kind.sh`.
+  - Set executable permissions via `chmod +x`.
+  - Executed `setup-kind.sh`: confirmed it detects existing cluster, ensures ingress, and reports healthy cluster state.
+- **Commands Executed**:
+  ```bash
+  # [WSL2 / Linux] Set script permissions
+  chmod +x scripts/setup-kind.sh scripts/teardown-kind.sh
+
+  # [WSL2 / Linux] Test setup script idempotency
+  ./scripts/setup-kind.sh
+  ```
+- **Files Created/Modified**:
+  - [`scripts/setup-kind.sh`](../../scripts/setup-kind.sh)
+  - [`scripts/teardown-kind.sh`](../../scripts/teardown-kind.sh)
+  - `docs/development-logs/PHASE-1-LOG.md`
+- **Validation Results**:
+  - Script correctly detected running cluster and reported readiness with exit code 0.
+- **Errors Encountered**: None.
+- **Current Status**: `VERIFIED`
+- **Next Task**: Phase 1 Final Review and Sign-Off.
+
 
 

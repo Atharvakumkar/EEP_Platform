@@ -111,6 +111,29 @@
 
 ---
 
+### Task 1.4: Deploy Ingress NGINX and Verify Routing
+- **Task ID**: `TASK-1.4`
+- **Objective**: Deploy Ingress NGINX on Kind and verify HTTP traffic routing on port 8080.
+- **Why Necessary**: Establish the reverse proxy that will route preview environment traffic to isolated application services.
+- **Prerequisites**: Task 1.3 complete. Cluster `eep-cluster` running.
+- **Commands Executed**: `kubectl apply -f ...deploy.yaml`, `kubectl wait ...`, `curl -I http://localhost:8080`, `curl.exe -s http://localhost:8080`.
+- **Validation**: Ingress NGINX pod `1/1 Running`; `curl.exe` from Windows returned HTTP 404 NGINX default backend.
+- **Status**: `VERIFIED`
+
+---
+
+### Task 1.5: Repeatable Cluster Automation Scripts
+- **Task ID**: `TASK-1.5`
+- **Objective**: Create `scripts/setup-kind.sh` and `scripts/teardown-kind.sh`.
+- **Why Necessary**: Provide one-command, idempotent cluster bootstrapping and destruction.
+- **Prerequisites**: Tasks 1.1–1.4 complete.
+- **Commands Executed**: `chmod +x scripts/*.sh`, `./scripts/setup-kind.sh`.
+- **Files Created**: [`scripts/setup-kind.sh`](../scripts/setup-kind.sh), [`scripts/teardown-kind.sh`](../scripts/teardown-kind.sh).
+- **Validation**: Executed `setup-kind.sh`; cleanly verified running cluster and ingress readiness with exit code 0.
+- **Status**: `VERIFIED`
+
+---
+
 ## 4. Current Decisions Requiring Approval
 
 The following Architecture Decision Records (ADRs) are documented in [`docs/ARCHITECTURE-DECISIONS.md`](ARCHITECTURE-DECISIONS.md) with status `PROPOSED` and await developer review:
