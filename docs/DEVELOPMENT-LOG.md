@@ -11,8 +11,8 @@
 
 | Phase | Title | Status | Completion Date | Phase Log |
 | :---: | :--- | :---: | :---: | :--- |
-| **0** | **Requirements and Architecture** | `IN PROGRESS` | — | [PHASE-0-LOG.md](development-logs/PHASE-0-LOG.md) |
-| **1** | Development Environment & K8s Foundation | `NOT STARTED` | — | *Pending Phase 0 sign-off* |
+| **0** | **Requirements and Architecture** | `COMPLETED` | 2026-10-19 | [PHASE-0-LOG.md](development-logs/PHASE-0-LOG.md) |
+| **1** | **Development Environment & K8s Foundation** | `IN PROGRESS` | — | [PHASE-1-LOG.md](development-logs/PHASE-1-LOG.md) |
 | **2** | Demo Application & Build Pipeline | `NOT STARTED` | — | *Pending* |
 | **3** | GitHub Integration & Provisioning Engine | `NOT STARTED` | — | *Pending* |
 | **4** | Environment Lifecycle Management | `NOT STARTED` | — | *Pending* |
@@ -73,6 +73,40 @@
   - Relative document links cross-checked.
   - Confirmed zero application code or manifests created.
 - **Errors Encountered**: None.
+- **Status**: `VERIFIED`
+
+---
+
+### Task 1.1: Tool Availability & Environment Audit
+- **Task ID**: `TASK-1.1`
+- **Objective**: Check and install required Kubernetes developer tooling in WSL2 Ubuntu.
+- **Why Necessary**: Establish native Linux binaries (`kubectl`, `kind`, `helm`) to avoid Windows path/interop issues.
+- **Prerequisites**: Windows 10/11 with WSL2 Ubuntu and Docker Desktop.
+- **Commands Executed**: Tool audits and installations in WSL2 Ubuntu (`curl`, `sudo install`).
+- **Files Created/Modified**: [`docs/development-logs/PHASE-1-LOG.md`](development-logs/PHASE-1-LOG.md).
+- **Validation**: All tools verified (`kubectl v1.37.1`, `kind v0.27.0`, `helm v3.17.1`, `docker`).
+- **Status**: `VERIFIED`
+
+---
+
+### Task 1.2: Author Kind Cluster Configuration
+- **Task ID**: `TASK-1.2`
+- **Objective**: Create `k8s/kind-config.yaml` with ingress port mappings (8080:80, 8443:443) and node labels.
+- **Why Necessary**: Expose cluster Ingress to Windows host on non-conflicting port 8080.
+- **Prerequisites**: Task 1.1 complete. Host port 80 identified as in-use by IIS; 8080 selected.
+- **Files Created**: [`k8s/kind-config.yaml`](../k8s/kind-config.yaml).
+- **Validation**: Validated schema and port bindings.
+- **Status**: `VERIFIED`
+
+---
+
+### Task 1.3: Kind Cluster Creation and Node Readiness
+- **Task ID**: `TASK-1.3`
+- **Objective**: Provision local Kubernetes cluster `eep-cluster` via Kind and verify node readiness.
+- **Why Necessary**: Foundation for hosting preview environments and Ingress controller.
+- **Prerequisites**: Task 1.1 and 1.2 complete. Docker Desktop running.
+- **Commands Executed**: `kind create cluster --config k8s/kind-config.yaml`, `kubectl get nodes -o wide`, `kubectl get pods -A`.
+- **Validation**: Node `eep-cluster-control-plane` is `Ready` (v1.32.2) with `ingress-ready=true`. All system pods `Running`.
 - **Status**: `VERIFIED`
 
 ---

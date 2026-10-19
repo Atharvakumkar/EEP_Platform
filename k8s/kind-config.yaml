@@ -1,0 +1,23 @@
+# Kind (Kubernetes in Docker) Cluster Configuration
+# Ephemeral Environment Provisioning Platform - Phase 1
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: eep-cluster
+nodes:
+  - role: control-plane
+    kubeadmConfigPatches:
+      - |
+        kind: InitConfiguration
+        nodeRegistration:
+          kubeletExtraArgs:
+            node-labels: "ingress-ready=true"
+    extraPortMappings:
+      # Map host port 8080 to Kind node port 80 (Ingress NGINX HTTP)
+      - containerPort: 80
+        hostPort: 8080
+        protocol: TCP
+      # Map host port 8443 to Kind node port 443 (Ingress NGINX HTTPS)
+      - containerPort: 443
+        hostPort: 8443
+        protocol: TCP
+
