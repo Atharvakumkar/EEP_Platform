@@ -12,8 +12,8 @@
 | Phase | Title | Status | Completion Date | Phase Log |
 | :---: | :--- | :---: | :---: | :--- |
 | **0** | **Requirements and Architecture** | `COMPLETED` | 2026-10-19 | [PHASE-0-LOG.md](development-logs/PHASE-0-LOG.md) |
-| **1** | **Development Environment & K8s Foundation** | `IN PROGRESS` | — | [PHASE-1-LOG.md](development-logs/PHASE-1-LOG.md) |
-| **2** | Demo Application & Build Pipeline | `NOT STARTED` | — | *Pending* |
+| **1** | **Development Environment & K8s Foundation** | `COMPLETED` | 2026-10-22 | [PHASE-1-LOG.md](development-logs/PHASE-1-LOG.md) |
+| **2** | **Demo Application & Build Pipeline** | `NOT STARTED` | — | [PHASE-2-LOG.md](development-logs/PHASE-2-LOG.md) *(Pending)* |
 | **3** | GitHub Integration & Provisioning Engine | `NOT STARTED` | — | *Pending* |
 | **4** | Environment Lifecycle Management | `NOT STARTED` | — | *Pending* |
 | **5** | Security and Reliability | `NOT STARTED` | — | *Pending* |
@@ -31,6 +31,11 @@
 - **Date**: 2026-10-17
 - **Activity**: Initialized repository documentation structure, project guidelines, conceptual architecture, technology stack evaluations, lifecycle workflows, and architectural decision records.
 - **Outcome**: Successfully established full foundational documentation suite. No application implementation code or infrastructure was created.
+
+### Milestone: Kubernetes Foundation & Ingress Verification (Phase 1)
+- **Date**: 2026-10-22
+- **Activity**: Audited and installed native Linux Kubernetes tooling in WSL2 Ubuntu, authored declarative Kind configuration with host port mappings 8080/8443, provisioned local cluster `eep-cluster`, deployed Ingress NGINX controller, verified end-to-end HTTP routing on port 8080 from Windows host, and authored automated lifecycle scripts (`setup-kind.sh`, `teardown-kind.sh`).
+- **Outcome**: Phase 1 successfully completed and signed off. Working, reproducible local Kubernetes runtime established.
 
 ---
 
